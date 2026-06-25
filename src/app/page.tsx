@@ -296,115 +296,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ── Question card Modal Popup ── */}
-          <QuestionModal isOpen={phase === "question"} onClose={handleReset}>
-            {activeQuestion && (
-              <QuestionCard
-                question={activeQuestion}
-                sessionId={sessionId}
-                onDone={() => {
-                  if (activeQuestion.id != null) {
-                    setAnsweredIds((prev) => {
-                      if (prev.includes(activeQuestion.id)) return prev;
-                      return [...prev, activeQuestion.id];
-                    });
-                  }
-                  setPhase("answered");
-                }}
-                onReset={handleReset}
-              />
-            )}
-          </QuestionModal>
-
-          {/* ── Cara Bermain Modal ── */}
-          <QuestionModal isOpen={showRulesModal} onClose={() => setShowRulesModal(false)}>
-            <div className="p-5 space-y-4">
-              <div className="flex items-center gap-2 border-b-2 border-black pb-3 pr-14">
-                <HelpCircle size={18} className="text-black" strokeWidth={3} />
-                <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
-                  Cara Bermain
-                </h3>
-              </div>
-              <div className="space-y-3 text-xs leading-relaxed text-[#5A5A5A] font-[family-name:var(--font-sans)]">
-                <div className="flex gap-2.5 items-start">
-                  <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">1</span>
-                  <p>Tekan tombol <strong>Putar Kincir</strong> untuk mengacak tebak rasa emosi.</p>
-                </div>
-                <div className="flex gap-2.5 items-start">
-                  <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">2</span>
-                  <p>Jawab pertanyaan pilihan ganda atau tulis tanggapanmu pada kolom essay.</p>
-                </div>
-                <div className="flex gap-2.5 items-start">
-                  <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">3</span>
-                  <p>Setiap respon akan dicatat di server untuk diulas bersama konselor sebaya PIK-R.</p>
-                </div>
-              </div>
-              <div className="pt-2">
-                <BrutalButton variant="brand" size="sm" fullWidth onClick={() => setShowRulesModal(false)}>
-                  Saya Mengerti
-                </BrutalButton>
-              </div>
-            </div>
-          </QuestionModal>
-
-          {/* ── Progress Tebak Rasa Modal ── */}
-          <QuestionModal isOpen={showProgressModal} onClose={() => setShowProgressModal(false)}>
-            <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between border-b-2 border-black pb-3 pr-14">
-                <div className="flex items-center gap-2">
-                  <Target size={18} className="text-black" strokeWidth={3} />
-                  <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
-                    Daftar Tebak Rasa
-                  </h3>
-                </div>
-                <span className="text-[10px] font-mono font-black border border-black bg-[#22d3ee] px-2 py-0.5">
-                  {answeredIds.length} / {questions.length}
-                </span>
-              </div>
-
-              <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
-                {questions.map((q, idx) => {
-                  const isAnswered = answeredIds.includes(q.id);
-                  return (
-                    <div
-                      key={q.id}
-                      className={cn(
-                        "border border-black p-2.5 flex items-center justify-between gap-3 text-xs",
-                        isAnswered ? "bg-[#a3e635] text-black" : "bg-[#FFF9E0] text-black/75"
-                      )}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className={cn(
-                          "w-5 h-5 flex items-center justify-center border border-black text-[9px] font-black shrink-0",
-                          isAnswered ? "bg-white text-black" : "bg-black text-[#FFDB33]"
-                        )}>
-                          {idx + 1}
-                        </span>
-                        <span className="font-bold truncate">
-                          {isAnswered ? "Selesai" : `Tebak Rasa #${idx + 1}`}
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-black uppercase tracking-wider text-black">
-                        {isAnswered ? "SELESAI" : "TERKUNCI"}
-                      </span>
-                    </div>
-                  );
-                })}
-                {questions.length === 0 && (
-                  <p className="text-xs text-[#AEAEAE] text-center py-6 font-semibold">
-                    Belum ada tebak rasa tersedia.
-                  </p>
-                )}
-              </div>
-
-              <div className="pt-2">
-                <BrutalButton variant="secondary" size="sm" fullWidth onClick={() => setShowProgressModal(false)}>
-                  Tutup
-                </BrutalButton>
-              </div>
-            </div>
-          </QuestionModal>
-
         </main>
 
         {/* ── Footer ── */}
@@ -421,6 +312,115 @@ export default function HomePage() {
             </a>
           </div>
         </footer>
+
+        {/* ── Question card Modal Popup ── */}
+        <QuestionModal isOpen={phase === "question"} onClose={handleReset}>
+          {activeQuestion && (
+            <QuestionCard
+              question={activeQuestion}
+              sessionId={sessionId}
+              onDone={() => {
+                if (activeQuestion.id != null) {
+                  setAnsweredIds((prev) => {
+                    if (prev.includes(activeQuestion.id)) return prev;
+                    return [...prev, activeQuestion.id];
+                  });
+                }
+                setPhase("answered");
+              }}
+              onReset={handleReset}
+            />
+          )}
+        </QuestionModal>
+
+        {/* ── Cara Bermain Modal ── */}
+        <QuestionModal isOpen={showRulesModal} onClose={() => setShowRulesModal(false)}>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center gap-2 border-b-2 border-black pb-3 pr-14">
+              <HelpCircle size={18} className="text-black" strokeWidth={3} />
+              <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
+                Cara Bermain
+              </h3>
+            </div>
+            <div className="space-y-3 text-xs leading-relaxed text-[#5A5A5A] font-[family-name:var(--font-sans)]">
+              <div className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">1</span>
+                <p>Tekan tombol <strong>Putar Kincir</strong> untuk mengacak tebak rasa emosi.</p>
+              </div>
+              <div className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">2</span>
+                <p>Jawab pertanyaan pilihan ganda atau tulis tanggapanmu pada kolom essay.</p>
+              </div>
+              <div className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">3</span>
+                <p>Setiap respon akan dicatat di server untuk diulas bersama konselor sebaya PIK-R.</p>
+              </div>
+            </div>
+            <div className="pt-2">
+              <BrutalButton variant="brand" size="sm" fullWidth onClick={() => setShowRulesModal(false)}>
+                Saya Mengerti
+              </BrutalButton>
+            </div>
+          </div>
+        </QuestionModal>
+
+        {/* ── Progress Tebak Rasa Modal ── */}
+        <QuestionModal isOpen={showProgressModal} onClose={() => setShowProgressModal(false)}>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between border-b-2 border-black pb-3 pr-14">
+              <div className="flex items-center gap-2">
+                <Target size={18} className="text-black" strokeWidth={3} />
+                <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
+                  Daftar Tebak Rasa
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-black border border-black bg-[#22d3ee] px-2 py-0.5">
+                {answeredIds.length} / {questions.length}
+              </span>
+            </div>
+
+            <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
+              {questions.map((q, idx) => {
+                const isAnswered = answeredIds.includes(q.id);
+                return (
+                  <div
+                    key={q.id}
+                    className={cn(
+                      "border border-black p-2.5 flex items-center justify-between gap-3 text-xs",
+                      isAnswered ? "bg-[#a3e635] text-black" : "bg-[#FFF9E0] text-black/75"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={cn(
+                        "w-5 h-5 flex items-center justify-center border border-black text-[9px] font-black shrink-0",
+                        isAnswered ? "bg-white text-black" : "bg-black text-[#FFDB33]"
+                      )}>
+                        {idx + 1}
+                      </span>
+                      <span className="font-bold truncate">
+                        {isAnswered ? "Selesai" : `Tebak Rasa #${idx + 1}`}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-black">
+                      {isAnswered ? "SELESAI" : "TERKUNCI"}
+                    </span>
+                  </div>
+                );
+              })}
+              {questions.length === 0 && (
+                <p className="text-xs text-[#AEAEAE] text-center py-6 font-semibold">
+                  Belum ada tebak rasa tersedia.
+                </p>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <BrutalButton variant="secondary" size="sm" fullWidth onClick={() => setShowProgressModal(false)}>
+                Tutup
+              </BrutalButton>
+            </div>
+          </div>
+        </QuestionModal>
 
         {/* CSS animations injected at page level */}
         <style>{`
