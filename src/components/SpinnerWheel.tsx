@@ -61,8 +61,8 @@ export default function SpinnerWheel({
   const getLabelPos = (index: number) => {
     const mid = ((index + 0.5) * segmentAngle - 90) * (Math.PI / 180);
     return {
-      x: CX + R * 0.6 * Math.cos(mid),
-      y: CY + R * 0.6 * Math.sin(mid),
+      x: CX + R * 0.68 * Math.cos(mid),
+      y: CY + R * 0.68 * Math.sin(mid),
     };
   };
 
@@ -150,12 +150,9 @@ export default function SpinnerWheel({
           )}
           style={{ boxShadow: "5px 5px 0 0 #000, 0 0 0 4px #000" }}
         >
-          {/* Spinning disc */}
+          {/* Spinning disc container */}
           <div className="rounded-full overflow-hidden">
-            <motion.div
-              animate={controls}
-              style={{ originX: "50%", originY: "50%", display: "block" }}
-            >
+            <div className="block">
               <svg
                 viewBox="0 0 280 280"
                 width="100%"
@@ -185,104 +182,148 @@ export default function SpinnerWheel({
                   </radialGradient>
                 </defs>
 
-                {/* Background circle */}
-                <circle cx={CX} cy={CY} r={R + 4} fill="#000" />
-
-                {/* Segments */}
-                {segments.map((seg, i) => {
-                  const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
-                  const labelPos = getLabelPos(i);
-                  const textAngle = (i + 0.5) * segmentAngle - 90;
-                  const fontSize = count > 10 ? "6.5" : count > 7 ? "8" : "10";
-                  return (
-                    <g key={seg.id}>
-                      <path
-                        d={buildPath(i)}
-                        fill={color}
-                        stroke="#000"
-                        strokeWidth="2.5"
-                      />
-                      {/* Segment highlight overlay using gradient */}
-                      <path
-                        d={buildPath(i)}
-                        fill={`url(#seg-grad-${i % SEGMENT_COLORS.length})`}
-                        stroke="none"
-                        opacity="0.6"
-                      />
-                      <text
-                        x={labelPos.x}
-                        y={labelPos.y}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        transform={`rotate(${textAngle}, ${labelPos.x}, ${labelPos.y})`}
-                        fontSize={fontSize}
-                        fontWeight="800"
-                        fontFamily="'Archivo Black', sans-serif"
-                        fill="#000"
-                        stroke="#fff"
-                        strokeWidth="0.8"
-                        paintOrder="stroke"
-                      >
-                        {seg.label || "?"}
-                      </text>
-                    </g>
-                  );
-                })}
-
-                {/* Shine overlay on top of all segments */}
-                <circle cx={CX} cy={CY} r={R} fill="url(#shine)" />
-
-                {/* Outer ring border */}
+                {/* Thick outer rim cabinet - STATIC */}
                 <circle
                   cx={CX}
                   cy={CY}
-                  r={R}
+                  r={R + 6}
                   fill="none"
                   stroke="#000"
-                  strokeWidth="3"
+                  strokeWidth="12"
                 />
 
-                {/* Tick marks */}
-                {Array.from({ length: count }).map((_, i) => {
-                  const angle = ((i * segmentAngle - 90) * Math.PI) / 180;
-                  const x1 = CX + (R - 1) * Math.cos(angle);
-                  const y1 = CY + (R - 1) * Math.sin(angle);
-                  const x2 = CX + (R - 10) * Math.cos(angle);
-                  const y2 = CY + (R - 10) * Math.sin(angle);
+                {/* Carnival style light bulbs - STATIC */}
+                {Array.from({ length: 18 }).map((_, i) => {
+                  const angle = (i * (360 / 18) * Math.PI) / 180;
+                  const bulbR = R + 6;
+                  const x = CX + bulbR * Math.cos(angle);
+                  const y = CY + bulbR * Math.sin(angle);
+                  const isYellow = i % 2 === 0;
+
+                  // Blink animations when spinning
+                  let bulbClass = "";
+                  if (spinning) {
+                    bulbClass = isYellow ? "animate-bulb-fast" : "animate-bulb-fast-delay";
+                  }
+
                   return (
-                    <line
+                    <circle
                       key={i}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
+                      cx={x}
+                      cy={y}
+                      r="2.5"
+                      className={bulbClass}
+                      fill={isYellow ? "#facc15" : "#fff"}
                       stroke="#000"
-                      strokeWidth="2.5"
+                      strokeWidth="0.8"
                     />
                   );
                 })}
 
-                {/* Hub rings */}
-                <circle cx={CX} cy={CY} r={26} fill="#000" />
-                <circle cx={CX} cy={CY} r={22} fill="#facc15" />
-                <circle cx={CX} cy={CY} r={16} fill="#000" />
-                <circle cx={CX} cy={CY} r={10} fill="#fbfbf9" />
-                <circle cx={CX} cy={CY} r={5} fill="#000" />
+                {/* Rotating Wheel Group */}
+                <motion.g
+                  animate={controls}
+                  style={{ transformOrigin: "140px 140px" }}
+                >
+                  {/* Background circle */}
+                  <circle cx={CX} cy={CY} r={R + 4} fill="#000" />
+
+                  {/* Segments */}
+                  {segments.map((seg, i) => {
+                    const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+                    const labelPos = getLabelPos(i);
+                    
+                    // Rotation angle calculation with readable text flipping
+                    const rawAngle = (i + 0.5) * segmentAngle - 90;
+                    const normalizedAngle = (rawAngle + 360) % 360;
+                    const shouldFlip = normalizedAngle > 90 && normalizedAngle < 270;
+                    const finalAngle = shouldFlip ? rawAngle + 180 : rawAngle;
+
+                    // Large font size for single digit numbers
+                    const fontSize = count > 15 ? "14" : count > 10 ? "18" : count > 7 ? "22" : "26";
+
+                    return (
+                      <g key={seg.id}>
+                        <path
+                          d={buildPath(i)}
+                          fill={color}
+                          stroke="#000"
+                          strokeWidth="2.5"
+                        />
+                        {/* Segment highlight overlay using gradient */}
+                        <path
+                          d={buildPath(i)}
+                          fill={`url(#seg-grad-${i % SEGMENT_COLORS.length})`}
+                          stroke="none"
+                          opacity="0.6"
+                        />
+                        <text
+                          x={labelPos.x}
+                          y={labelPos.y}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          transform={`rotate(${finalAngle}, ${labelPos.x}, ${labelPos.y})`}
+                          fontSize={fontSize}
+                          fontWeight="900"
+                          fontFamily="'Archivo Black', sans-serif"
+                          fill="#000"
+                          stroke="#fff"
+                          strokeWidth="2.5"
+                          paintOrder="stroke"
+                        >
+                          {seg.label || "?"}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Shine overlay on top of all segments */}
+                  <circle cx={CX} cy={CY} r={R} fill="url(#shine)" />
+
+                  {/* Outer ring border */}
+                  <circle
+                    cx={CX}
+                    cy={CY}
+                    r={R}
+                    fill="none"
+                    stroke="#000"
+                    strokeWidth="3"
+                  />
+
+                  {/* Tick marks */}
+                  {Array.from({ length: count }).map((_, i) => {
+                    const angle = ((i * segmentAngle - 90) * Math.PI) / 180;
+                    const x1 = CX + (R - 1) * Math.cos(angle);
+                    const y1 = CY + (R - 1) * Math.sin(angle);
+                    const x2 = CX + (R - 10) * Math.cos(angle);
+                    const y2 = CY + (R - 10) * Math.sin(angle);
+                    return (
+                      <line
+                        key={i}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="#000"
+                        strokeWidth="2.5"
+                      />
+                    );
+                  })}
+
+                  {/* Hub rings */}
+                  <circle cx={CX} cy={CY} r={26} fill="#000" />
+                  <circle cx={CX} cy={CY} r={22} fill="#facc15" />
+                  <circle cx={CX} cy={CY} r={16} fill="#000" />
+                  <circle cx={CX} cy={CY} r={10} fill="#fbfbf9" />
+                  <circle cx={CX} cy={CY} r={5} fill="#000" />
+                </motion.g>
               </svg>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Status */}
-      <p
-        className={cn(
-          "text-xs font-black uppercase tracking-widest font-[family-name:var(--font-head)]",
-          spinning ? "text-[#22d3ee]" : landed ? "text-[#a3e635]" : "text-black/40"
-        )}
-      >
-        {spinning ? "Sedang berputar…" : landed ? "Kincir berhenti!" : "Tekan tombol di bawah"}
-      </p>
+
     </div>
   );
 }

@@ -131,7 +131,7 @@ export default function HomePage() {
     .filter(({ q }) => q.id != null && (q.question_text ?? "").trim().length > 0 && !answeredIds.includes(q.id))
     .map(({ q, idx }) => ({
       id: q.id,
-      label: `Tebak Rasa #${idx + 1}`,
+      label: String(idx + 1),
     }));
 
   const isCompleted = questions.length > 0 && wheelSegments.length === 0;
@@ -235,13 +235,7 @@ export default function HomePage() {
               <div className="border-4 border-black bg-white shadow-[8px_8px_0_0_#000] relative overflow-hidden flex flex-col items-center p-5">
                 
                 {/* Arcade Console Top Decoration */}
-                <div className="w-[calc(100%+2.5rem)] border-b-4 border-black bg-black -mx-5 -mt-5 px-5 py-2.5 flex items-center justify-between text-white shrink-0 mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#E63946] border border-black animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-wider font-[family-name:var(--font-head)] text-[#FFDB33]">
-                      PLAY MODE
-                    </span>
-                  </div>
+                <div className="w-[calc(100%+2.5rem)] border-b-4 border-black bg-black -mx-5 -mt-5 px-5 py-2.5 flex items-center justify-end text-white shrink-0 mb-5">
                   <button
                     onClick={() => setShowProgressModal(true)}
                     className={cn(

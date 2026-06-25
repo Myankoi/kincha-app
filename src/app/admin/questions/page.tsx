@@ -512,14 +512,14 @@ export default function QuestionsManagementPage() {
             ))}
             <button
               onClick={fetchQuestions}
-              className="ml-auto border-2 border-black p-1.5 bg-white hover:bg-[#F5F5F0] shadow-[2px_2px_0_0_#000] transition-all"
+              className="ml-auto border-2 border-black p-1.5 bg-white hover:bg-[#F5F5F0] text-black shadow-[2px_2px_0_0_#000] transition-all"
               aria-label="Refresh"
             >
-              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              <RefreshCw size={14} className={cn("text-black", loading ? "animate-spin" : "")} />
             </button>
           </div>
 
-          {/* Table */}
+          {/* Table / Cards List */}
           {loading ? (
             <div className="border-4 border-black bg-white p-12 shadow-[6px_6px_0_0_#000] flex flex-col items-center gap-3">
               <RefreshCw className="animate-spin text-black" size={24} />
@@ -532,70 +532,141 @@ export default function QuestionsManagementPage() {
               </p>
             </div>
           ) : (
-            <div className="border-4 border-black shadow-[6px_6px_0_0_#000] overflow-x-auto bg-white">
-              <table className="w-full text-sm text-left min-w-[640px]">
-                <thead>
-                  <tr className="bg-[#F5F5F0] border-b-4 border-black">
-                    {["#", "Tipe", "Pertanyaan", "Opsi", "Media", "Aksi"].map((h) => (
-                      <th key={h} className="px-4 py-3.5 text-xs font-black text-black uppercase tracking-widest border-r-2 last:border-r-0 border-black font-[family-name:var(--font-head)]">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((q, idx) => (
-                    <tr
-                      key={q.id}
-                      className={cn(
-                        "bg-white hover:bg-[#F5F5F0]/50 transition-colors",
-                        idx !== filtered.length - 1 && "border-b-2 border-black"
-                      )}
-                    >
-                      <td className="px-4 py-3 font-mono text-[10px] text-[#AEAEAE] border-r border-black/10">{q.id}</td>
-                      <td className="px-4 py-3 border-r border-black/10">
-                        <span className={cn("inline-block border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase shadow-[1px_1px_0_0_#000]", TYPE_COLOR[q.question_type] ?? "bg-white border-black text-black")}>
-                          {q.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[300px]">
-                        <span className="line-clamp-2 leading-relaxed">{q.question_text ?? "—"}</span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-black border-r border-black/10 font-semibold whitespace-nowrap">
-                        {q.options ? `${q.options.length} Opsi` : "—"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-[#AEAEAE] border-r border-black/10 whitespace-nowrap">
+            <>
+              {/* Mobile Card-Based Grid (Visible only on mobile) */}
+              <div className="block sm:hidden space-y-4">
+                {filtered.map((q) => (
+                  <div
+                    key={q.id}
+                    className="border-4 border-black bg-white p-4 shadow-[4px_4px_0_0_#000] space-y-3 relative"
+                  >
+                    {/* Header: ID + Type Badge */}
+                    <div className="flex items-center justify-between border-b-2 border-black/10 pb-2">
+                      <span className="font-mono text-xs font-semibold text-black/50">Soal #{q.id}</span>
+                      <span
+                        className={cn(
+                          "inline-block border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase shadow-[1px_1px_0_0_#000]",
+                          q.question_type === "MULTIPLE_CHOICE"
+                            ? "bg-[#CFFAFE] border-[#0891B2] text-[#0891B2]"
+                            : "bg-[#FEF3C7] border-[#D97706] text-[#92400E]"
+                        )}
+                      >
+                        {q.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
+                      </span>
+                    </div>
+
+                    {/* Body: Question Text */}
+                    <div className="space-y-1">
+                      <p className="text-xs text-black font-semibold leading-relaxed">
+                        {q.question_text ?? "—"}
+                      </p>
+                    </div>
+
+                    {/* Meta info: Options & Media */}
+                    <div className="flex gap-4 text-[10px] text-[#5A5A5A] border-t border-black/5 pt-2">
+                      <div>
+                        <span className="font-bold">Opsi: </span>
+                        <span>{q.options ? `${q.options.length} Opsi` : "—"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="font-bold">Media: </span>
                         {q.media_type === "NONE" || !q.media_type ? (
-                          "—"
+                          <span>Tidak ada</span>
                         ) : (
-                          <span className="border border-black bg-black text-[#FFDB33] px-1.5 py-0.5 text-[9px] font-black uppercase shadow-[1px_1px_0_0_#000]">
+                          <span className="border border-black bg-black text-[#FFDB33] px-1 py-0.2 text-[8px] font-black uppercase leading-none">
                             {q.media_type}
                           </span>
                         )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => { setEditTarget(q); setShowForm(true); }}
-                            className="border-2 border-black p-1.5 bg-[#22d3ee] hover:bg-[#06b6d4] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
-                            aria-label="Edit soal"
-                          >
-                            <Pencil size={13} strokeWidth={2.5} className="text-black" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(q)}
-                            className="border-2 border-black p-1.5 bg-[#ff4b5c] hover:bg-[#ff2c40] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
-                            aria-label="Hapus soal"
-                          >
-                            <Trash2 size={13} strokeWidth={2.5} className="text-black" />
-                          </button>
-                        </div>
-                      </td>
+                      </div>
+                    </div>
+
+                    {/* Footer: Actions */}
+                    <div className="flex justify-end gap-2 border-t-2 border-dashed border-black/10 pt-3">
+                      <button
+                        onClick={() => { setEditTarget(q); setShowForm(true); }}
+                        className="border-2 border-black p-2 bg-[#22d3ee] hover:bg-[#06b6d4] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                        aria-label="Edit soal"
+                      >
+                        <Pencil size={13} className="text-black" strokeWidth={2.5} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(q)}
+                        className="border-2 border-black p-2 bg-[#ff4b5c] hover:bg-[#ff2c40] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                        aria-label="Hapus soal"
+                      >
+                        <Trash2 size={13} className="text-black" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Spreadsheet Grid (Hidden on mobile) */}
+              <div className="hidden sm:block border-4 border-black shadow-[6px_6px_0_0_#000] overflow-x-auto bg-white">
+                <table className="w-full text-sm text-left min-w-[640px]">
+                  <thead>
+                    <tr className="bg-[#F5F5F0] border-b-4 border-black">
+                      {["#", "Tipe", "Pertanyaan", "Opsi", "Media", "Aksi"].map((h) => (
+                        <th key={h} className="px-4 py-3.5 text-xs font-black text-black uppercase tracking-widest border-r-2 last:border-r-0 border-black font-[family-name:var(--font-head)]">
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtered.map((q, idx) => (
+                      <tr
+                        key={q.id}
+                        className={cn(
+                          "bg-white hover:bg-[#F5F5F0]/50 transition-colors",
+                          idx !== filtered.length - 1 && "border-b-2 border-black"
+                        )}
+                      >
+                        <td className="px-4 py-3 font-mono text-[10px] text-[#AEAEAE] border-r border-black/10">{q.id}</td>
+                        <td className="px-4 py-3 border-r border-black/10">
+                          <span className={cn("inline-block border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase shadow-[1px_1px_0_0_#000]", TYPE_COLOR[q.question_type] ?? "bg-white border-black text-black")}>
+                            {q.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[300px]">
+                          <span className="line-clamp-2 leading-relaxed">{q.question_text ?? "—"}</span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-black border-r border-black/10 font-semibold whitespace-nowrap">
+                          {q.options ? `${q.options.length} Opsi` : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-[#AEAEAE] border-r border-black/10 whitespace-nowrap">
+                          {q.media_type === "NONE" || !q.media_type ? (
+                            "—"
+                          ) : (
+                            <span className="border border-black bg-black text-[#FFDB33] px-1.5 py-0.5 text-[9px] font-black uppercase shadow-[1px_1px_0_0_#000]">
+                              {q.media_type}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => { setEditTarget(q); setShowForm(true); }}
+                              className="border-2 border-black p-1.5 bg-[#22d3ee] hover:bg-[#06b6d4] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                              aria-label="Edit soal"
+                            >
+                              <Pencil size={13} strokeWidth={2.5} className="text-black" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTarget(q)}
+                              className="border-2 border-black p-1.5 bg-[#ff4b5c] hover:bg-[#ff2c40] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                              aria-label="Hapus soal"
+                            >
+                              <Trash2 size={13} strokeWidth={2.5} className="text-black" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </main>
 
