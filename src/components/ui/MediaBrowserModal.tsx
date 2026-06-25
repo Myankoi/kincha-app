@@ -157,10 +157,10 @@ export const MediaBrowserModal: React.FC<MediaBrowserModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="border-2 border-black p-1 bg-white hover:bg-[#F5F5F0] transition-colors"
+            className="border-2 border-black p-1 bg-white hover:bg-[#F5F5F0] transition-colors text-black"
             aria-label="Tutup explorer"
           >
-            <X size={16} strokeWidth={3} />
+            <X size={16} strokeWidth={3} className="text-black" />
           </button>
         </div>
 
@@ -171,9 +171,9 @@ export const MediaBrowserModal: React.FC<MediaBrowserModalProps> = ({
             {currentPath ? (
               <button
                 onClick={handleBackClick}
-                className="flex items-center gap-1 border-2 border-black bg-white px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
+                className="flex items-center gap-1 border-2 border-black bg-white px-2 py-1 text-xs font-bold text-black shadow-[2px_2px_0_0_#000] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
               >
-                <ArrowLeft size={12} strokeWidth={2.5} />
+                <ArrowLeft size={12} strokeWidth={2.5} className="text-black" />
                 Kembali
               </button>
             ) : null}
@@ -199,7 +199,7 @@ export const MediaBrowserModal: React.FC<MediaBrowserModalProps> = ({
             {uploading ? (
               <Loader2 size={12} className="animate-spin text-black" />
             ) : (
-              <Upload size={12} strokeWidth={3} />
+              <Upload size={12} strokeWidth={3} className="text-black" />
             )}
             {uploading ? "Mengunggah..." : "Upload Baru"}
             <input
