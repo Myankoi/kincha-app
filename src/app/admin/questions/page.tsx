@@ -131,7 +131,7 @@ function QuestionFormModal({
       question_type: form.question_type,
       options: form.question_type === "MULTIPLE_CHOICE" ? validOptions : null,
       correct_option: form.question_type === "MULTIPLE_CHOICE" ? form.correct_option : null,
-      explanation: form.explanation.trim() || null,
+      explanation: form.explanation.trim(),
       media_url: form.media_url.trim() || null,
       media_type: form.media_type,
     };
