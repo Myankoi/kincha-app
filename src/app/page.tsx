@@ -109,7 +109,7 @@ export default function HomePage() {
     .filter((q) => q.id != null && (q.question_text ?? "").trim().length > 0)
     .map((q, idx) => ({
       id: q.id,
-      label: `Tantangan #${idx + 1}`,
+      label: `Tebak Rasa #${idx + 1}`,
     }));
 
   return (
@@ -192,7 +192,7 @@ export default function HomePage() {
                     onClick={() => setShowProgressModal(true)}
                     className="border border-[#a3e635] bg-[#a3e635] text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-wider hover:bg-white transition-colors"
                   >
-                    Tantangan: {answeredIds.length}/{questions.length}
+                    Tebak Rasa: {answeredIds.length}/{questions.length}
                   </button>
                 </div>
 
@@ -237,7 +237,7 @@ export default function HomePage() {
                     {phase === "spinning" 
                       ? "Kincir berputar..." 
                       : phase === "answered" 
-                      ? "Tantangan selesai" 
+                      ? "Tebak Rasa selesai" 
                       : "Siap untuk diputar"}
                   </p>
                 </div>
@@ -262,7 +262,7 @@ export default function HomePage() {
                     <div className="w-full border-2 border-black bg-black px-4 py-3 shadow-[4px_4px_0_0_#FFDB33] flex items-center justify-center gap-2 select-none">
                       <Loader2 className="animate-spin text-[#FFDB33] shrink-0" size={14} strokeWidth={3} />
                       <span className="text-xs font-black text-white uppercase tracking-wider font-[family-name:var(--font-head)]">
-                        Mencari tantangan...
+                        Mencari tebak rasa...
                       </span>
                     </div>
                   )}
@@ -289,7 +289,7 @@ export default function HomePage() {
                   className="border-2 text-xs py-2 shadow-[2px_2px_0_0_#000]"
                 >
                   <CheckCircle2 size={14} strokeWidth={2.5} />
-                  Lihat Tantangan
+                  Lihat Tebak Rasa
                 </BrutalButton>
               </div>
 
@@ -319,7 +319,7 @@ export default function HomePage() {
           {/* ── Cara Bermain Modal ── */}
           <QuestionModal isOpen={showRulesModal} onClose={() => setShowRulesModal(false)}>
             <div className="p-5 space-y-4">
-              <div className="flex items-center gap-2 border-b-2 border-black pb-3">
+              <div className="flex items-center gap-2 border-b-2 border-black pb-3 pr-14">
                 <HelpCircle size={18} className="text-black" strokeWidth={3} />
                 <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
                   Cara Bermain
@@ -328,7 +328,7 @@ export default function HomePage() {
               <div className="space-y-3 text-xs leading-relaxed text-[#5A5A5A] font-[family-name:var(--font-sans)]">
                 <div className="flex gap-2.5 items-start">
                   <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">1</span>
-                  <p>Tekan tombol <strong>Putar Kincir</strong> untuk mengacak tantangan emosi.</p>
+                  <p>Tekan tombol <strong>Putar Kincir</strong> untuk mengacak tebak rasa emosi.</p>
                 </div>
                 <div className="flex gap-2.5 items-start">
                   <span className="w-5 h-5 flex items-center justify-center border border-black bg-[#FFDB33] text-black font-black text-[10px] shrink-0">2</span>
@@ -347,14 +347,14 @@ export default function HomePage() {
             </div>
           </QuestionModal>
 
-          {/* ── Progress Tantangan Modal ── */}
+          {/* ── Progress Tebak Rasa Modal ── */}
           <QuestionModal isOpen={showProgressModal} onClose={() => setShowProgressModal(false)}>
             <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between border-b-2 border-black pb-3">
+              <div className="flex items-center justify-between border-b-2 border-black pb-3 pr-14">
                 <div className="flex items-center gap-2">
                   <Target size={18} className="text-black" strokeWidth={3} />
                   <h3 className="text-sm font-black uppercase text-black font-[family-name:var(--font-head)]">
-                    Daftar Tantangan
+                    Daftar Tebak Rasa
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono font-black border border-black bg-[#22d3ee] px-2 py-0.5">
@@ -381,7 +381,7 @@ export default function HomePage() {
                           {idx + 1}
                         </span>
                         <span className="font-bold truncate">
-                          {isAnswered ? "Selesai" : `Tantangan Misteri #${idx + 1}`}
+                          {isAnswered ? "Selesai" : `Tebak Rasa #${idx + 1}`}
                         </span>
                       </div>
                       <span className="text-[9px] font-black uppercase tracking-wider text-black">
@@ -392,7 +392,7 @@ export default function HomePage() {
                 })}
                 {questions.length === 0 && (
                   <p className="text-xs text-[#AEAEAE] text-center py-6 font-semibold">
-                    Belum ada tantangan tersedia.
+                    Belum ada tebak rasa tersedia.
                   </p>
                 )}
               </div>
