@@ -85,12 +85,12 @@ function CorrectnessBadge({ isCorrect }: { isCorrect: boolean | null }) {
   if (isCorrect)
     return (
       <span className="inline-flex items-center border-2 border-black bg-[#a3e635] px-2 py-0.5 text-[10px] font-black text-black uppercase tracking-wide shadow-[1px_1px_0_0_#000]">
-        ✓ Benar
+        Benar
       </span>
     );
   return (
     <span className="inline-flex items-center border-2 border-black bg-[#f472b6] px-2 py-0.5 text-[10px] font-black text-black uppercase tracking-wide shadow-[1px_1px_0_0_#000]">
-      ✗ Salah
+      Salah
     </span>
   );
 }
@@ -109,76 +109,145 @@ function AnswersTable({ rows }: { rows: AnswerRow[] }) {
   }
 
   return (
-    <div className="border-4 border-black shadow-[6px_6px_0_0_#000] overflow-x-auto bg-white">
-      <table className="w-full text-sm text-left min-w-[720px]">
-        <thead>
-          <tr className="bg-[#F5F5F0] border-b-4 border-black">
-            {["#", "Sesi", "Pertanyaan", "Jawaban", "Status", "Waktu"].map(
-              (h) => (
-                <th
-                  key={h}
-                  className="px-4 py-3.5 text-xs font-black text-black uppercase tracking-widest border-r-2 last:border-r-0 border-black font-[family-name:var(--font-head)]"
-                >
-                  {h}
-                </th>
-              )
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, idx) => {
-            const hasProfanity = containsProfanity(row.answer_text);
-            const displayText = hasProfanity
-              ? sanitizeText(row.answer_text)
-              : row.answer_text;
+    <div className="space-y-4">
+      {/* Mobile Card-Based Grid (Visible only on mobile) */}
+      <div className="block sm:hidden space-y-4">
+        {rows.map((row) => {
+          const hasProfanity = containsProfanity(row.answer_text);
+          const displayText = hasProfanity
+            ? sanitizeText(row.answer_text)
+            : row.answer_text;
 
-            return (
-              <tr
-                key={row.id}
-                className={cn(
-                  "bg-white hover:bg-[#F5F5F0]/50 transition-colors duration-100",
-                  idx !== rows.length - 1 && "border-b-2 border-black"
-                )}
-              >
-                <td className="px-4 py-3 font-mono text-[10px] text-[#5A5A5A] whitespace-nowrap border-r border-black/10">
-                  {row.id}
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-black font-semibold whitespace-nowrap border-r border-black/10">
-                  #{row.session_id.slice(0, 8).toUpperCase()}
-                </td>
-                <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[220px]">
-                  <div className="space-y-1.5">
-                    <p className="line-clamp-2 leading-relaxed">
-                      {row.questions?.question_text ?? `Q#${row.question_id}`}
-                    </p>
-                    {row.questions?.question_type && (
-                      <span className="inline-block border-2 border-black bg-[#FFDB33] px-1.5 py-0.5 text-[9px] font-black uppercase text-black tracking-wide shadow-[1px_1px_0_0_#000]">
-                        {row.questions.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[240px]">
-                  <span
-                    className={cn(
-                      "line-clamp-3 leading-relaxed",
-                      hasProfanity && "text-[#E63946] font-bold bg-[#FEF2F2] border border-[#FECACA] px-1.5 py-0.5 inline-block"
-                    )}
-                  >
-                    {displayText}
+          return (
+            <div
+              key={row.id}
+              className="border-4 border-black bg-white p-4 shadow-[4px_4px_0_0_#000] space-y-3 relative"
+            >
+              {/* Header inside mobile card: Sesi ID + Status badge */}
+              <div className="flex items-center justify-between border-b-2 border-black/10 pb-2">
+                <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-black">
+                  <span>Sesi:</span>
+                  <span className="bg-[#EBEBEB] border border-black px-1.5 py-0.5">
+                    #{row.session_id.slice(0, 8).toUpperCase()}
                   </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap border-r border-black/10">
-                  <CorrectnessBadge isCorrect={row.is_correct} />
-                </td>
-                <td className="px-4 py-3 text-xs text-[#5A5A5A] whitespace-nowrap font-mono">
-                  {formatTimestamp(row.submitted_at)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                </div>
+                <CorrectnessBadge isCorrect={row.is_correct} />
+              </div>
+
+              {/* Body: Question text */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase text-[#AEAEAE] tracking-wider">
+                    Soal #{row.question_id}
+                  </span>
+                  {row.questions?.question_type && (
+                    <span className="border border-black bg-[#FFDB33] px-1 py-0.5 text-[8px] font-black uppercase text-black tracking-wide">
+                      {row.questions.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-black font-semibold leading-relaxed">
+                  {row.questions?.question_text ?? `Q#${row.question_id}`}
+                </p>
+              </div>
+
+              {/* Body: Submitted answer */}
+              <div className="space-y-1 bg-[#F5F5F0] border-2 border-black p-2.5 shadow-[2px_2px_0_0_#000]">
+                <span className="block text-[8px] font-black uppercase text-black/50 tracking-wider">
+                  Jawaban Pemain:
+                </span>
+                <p
+                  className={cn(
+                    "text-xs text-black leading-relaxed break-words",
+                    hasProfanity && "text-[#E63946] font-bold"
+                  )}
+                >
+                  {displayText}
+                </p>
+              </div>
+
+              {/* Footer: Time submitted */}
+              <div className="flex items-center justify-between text-[10px] text-[#5A5A5A] font-mono pt-1">
+                <span>{formatTimestamp(row.submitted_at)}</span>
+                <span className="text-[8px] text-[#AEAEAE]">ID: {row.id}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Tabular Grid (Hidden on mobile) */}
+      <div className="hidden sm:block border-4 border-black shadow-[6px_6px_0_0_#000] overflow-x-auto bg-white">
+        <table className="w-full text-sm text-left min-w-[720px]">
+          <thead>
+            <tr className="bg-[#F5F5F0] border-b-4 border-black">
+              {["#", "Sesi", "Pertanyaan", "Jawaban", "Status", "Waktu"].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3.5 text-xs font-black text-black uppercase tracking-widest border-r-2 last:border-r-0 border-black font-[family-name:var(--font-head)]"
+                  >
+                    {h}
+                  </th>
+                )
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => {
+              const hasProfanity = containsProfanity(row.answer_text);
+              const displayText = hasProfanity
+                ? sanitizeText(row.answer_text)
+                : row.answer_text;
+
+              return (
+                <tr
+                  key={row.id}
+                  className={cn(
+                    "bg-white hover:bg-[#F5F5F0]/50 transition-colors duration-100",
+                    idx !== rows.length - 1 && "border-b-2 border-black"
+                  )}
+                >
+                  <td className="px-4 py-3 font-mono text-[10px] text-[#5A5A5A] whitespace-nowrap border-r border-black/10">
+                    {row.id}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-black font-semibold whitespace-nowrap border-r border-black/10">
+                    #{row.session_id.slice(0, 8).toUpperCase()}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[220px]">
+                    <div className="space-y-1.5">
+                      <p className="line-clamp-2 leading-relaxed">
+                        {row.questions?.question_text ?? `Q#${row.question_id}`}
+                      </p>
+                      {row.questions?.question_type && (
+                        <span className="inline-block border-2 border-black bg-[#FFDB33] px-1.5 py-0.5 text-[9px] font-black uppercase text-black tracking-wide shadow-[1px_1px_0_0_#000]">
+                          {row.questions.question_type === "MULTIPLE_CHOICE" ? "PG" : "Essay"}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-black border-r border-black/10 max-w-[240px]">
+                    <span
+                      className={cn(
+                        "line-clamp-3 leading-relaxed",
+                        hasProfanity && "text-[#E63946] font-bold bg-[#FEF2F2] border border-[#FECACA] px-1.5 py-0.5 inline-block"
+                      )}
+                    >
+                      {displayText}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap border-r border-black/10">
+                    <CorrectnessBadge isCorrect={row.is_correct} />
+                  </td>
+                  <td className="px-4 py-3 text-xs text-[#5A5A5A] whitespace-nowrap font-mono">
+                    {formatTimestamp(row.submitted_at)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -280,7 +349,7 @@ function QuestionAnalyticsCard({
 
             {totalCount > 0 && (
               <div className="border-2 border-black bg-[#FFF9E0] p-2.5 shadow-[2px_2px_0_0_#000] text-xs font-bold text-black mt-4">
-                🎯 Akurasi Soal: {accuracy}% ({correctCount} dari {totalCount} menjawab benar)
+                Akurasi Soal: {accuracy}% ({correctCount} dari {totalCount} menjawab benar)
               </div>
             )}
           </div>
@@ -495,23 +564,20 @@ export default function AdminDashboardPage() {
         <SunflowerSVG size={100} className="absolute top-20 -left-10 rotate-[70deg] opacity-10 pointer-events-none z-0" />
 
         {/* Top bar */}
-        <header className="border-b-4 border-black bg-black px-4 py-4 sticky top-0 z-30 shadow-[0_4px_0_0_#000]">
+        <header className="border-b-4 border-black bg-white px-4 py-4 sticky top-0 z-30 shadow-[0_4px_0_0_#000]">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="border-2 border-[#facc15] bg-[#facc15] p-2 shadow-[2px_2px_0_0_#000]">
-                <BarChart3 size={18} className="text-black" strokeWidth={3} />
-              </div>
               <div>
-                <h1 className="text-sm sm:text-base font-black text-white font-[family-name:var(--font-head)] leading-tight tracking-wider">
-                  <DecryptedText
-                    text="KINCHA DASHBOARD"
-                    animateOn="view"
-                    speed={50}
-                    maxIterations={15}
-                    className="text-white"
-                  />
+                <h1 className="text-xl font-[family-name:var(--font-head)] font-black text-black tracking-[0.05em] leading-none uppercase flex items-center gap-0.5 select-none">
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#FFDB33] rotate-[-3deg]">K</span>
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#22d3ee] rotate-[2deg]">I</span>
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#f472b6] rotate-[-1deg]">N</span>
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#a3e635] rotate-[3deg]">C</span>
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#fb923c] rotate-[-2deg]">H</span>
+                  <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#a78bfa] rotate-[1deg]">A</span>
+                  <span className="text-xs font-black uppercase text-black ml-2 px-1.5 py-0.5 border border-black bg-[#FFDB33] shadow-[1px_1px_0_0_#000] rotate-[1deg]">DASHBOARD</span>
                 </h1>
-                <p className="text-[9px] text-white/50 uppercase tracking-widest font-[family-name:var(--font-sans)] leading-none mt-0.5">
+                <p className="text-[8px] text-black/55 uppercase tracking-[0.2em] leading-none mt-1 font-[family-name:var(--font-sans)] font-extrabold">
                   Pemantau Admin Sesi Game
                 </p>
               </div>
@@ -630,7 +696,7 @@ export default function AdminDashboardPage() {
                         activeTab === "TABLE" ? "bg-[#FFDB33] text-black" : "bg-transparent text-white hover:text-[#FFDB33]"
                       )}
                     >
-                      📋 Tabel
+                      Tabel
                     </button>
                     <button
                       onClick={() => setActiveTab("CHARTS")}
@@ -639,7 +705,7 @@ export default function AdminDashboardPage() {
                         activeTab === "CHARTS" ? "bg-[#FFDB33] text-black" : "bg-transparent text-white hover:text-[#FFDB33]"
                       )}
                     >
-                      📊 Analisis
+                      Analisis
                     </button>
                   </div>
                 )}
@@ -676,11 +742,10 @@ export default function AdminDashboardPage() {
             )}
           </section>
 
-          {/* Profanity legend */}
           {!loading && answers.some((r) => containsProfanity(r.answer_text)) && (
             <section aria-label="Keterangan filter konten">
               <div className="border-4 border-[#E63946] bg-[#FEF2F2] p-4 shadow-[6px_6px_0_0_#E63946] flex items-start gap-3">
-                <span className="text-xl leading-none">⚠️</span>
+                <AlertTriangle className="text-[#E63946] shrink-0" size={20} strokeWidth={2.5} />
                 <div className="space-y-1">
                   <p className="text-xs font-black uppercase tracking-widest text-[#C41E30] font-[family-name:var(--font-head)]">
                     Konten Disensor

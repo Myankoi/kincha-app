@@ -7,6 +7,7 @@ import { getPublicMediaUrl } from "@/lib/supabase";
 import { Loader2, CheckCircle2, XCircle, MessageSquare, RotateCcw, ChevronRight, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface QuestionCardProps {
   question: Question;
@@ -69,12 +70,10 @@ function AnswerResult({
   isCorrect,
   explanation,
   onDone,
-  onReset,
 }: {
   isCorrect: boolean | null;
   explanation: string | null | undefined;
   onDone: () => void;
-  onReset: () => void;
 }) {
   const resultMap = {
     correct: {
@@ -98,7 +97,12 @@ function AnswerResult({
   const result = resultMap[key];
 
   return (
-    <div className="space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", damping: 20, stiffness: 200 }}
+      className="space-y-4"
+    >
       {/* Result strip */}
       <div
         className={cn(
@@ -125,17 +129,13 @@ function AnswerResult({
       )}
 
       {/* Actions */}
-      <div className="flex flex-col gap-2.5 pt-1">
+      <div className="pt-1">
         <BrutalButton variant="brand" size="lg" fullWidth onClick={onDone}>
           <ChevronRight size={16} strokeWidth={2.5} />
           Lanjutkan
         </BrutalButton>
-        <BrutalButton variant="ghost" size="sm" fullWidth onClick={onReset}>
-          <RotateCcw size={14} strokeWidth={2.5} />
-          Reset Sesi
-        </BrutalButton>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -352,7 +352,6 @@ export default function QuestionCard({
             isCorrect={isCorrect}
             explanation={question.explanation}
             onDone={onDone}
-            onReset={onReset}
           />
         ) : (
           <>

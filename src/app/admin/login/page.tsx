@@ -36,13 +36,13 @@ export default function AdminLoginPage() {
 
   return (
     <ClickSpark sparkColor="#FFDB33" sparkSize={10} sparkRadius={22} sparkCount={8}>
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-16 min-h-screen bg-black relative overflow-hidden">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-16 min-h-screen bg-[#F5F5F0] bg-[linear-gradient(to_right,#e0e0e0_1px,transparent_1px),linear-gradient(to_bottom,#e0e0e0_1px,transparent_1px)] bg-[size:32px_32px] relative overflow-hidden">
         
         {/* Background decorative elements */}
-        <div className="absolute top-10 left-10 opacity-20 pointer-events-none z-0">
+        <div className="absolute top-10 left-10 opacity-15 pointer-events-none z-0">
           <SunflowerSVG size={120} className="rotate-[45deg]" />
         </div>
-        <div className="absolute bottom-10 right-10 opacity-20 pointer-events-none z-0">
+        <div className="absolute bottom-10 right-10 opacity-15 pointer-events-none z-0">
           <SunflowerSVG size={140} className="rotate-[15deg]" />
         </div>
 
@@ -166,7 +166,7 @@ export default function AdminLoginPage() {
             </BrutalButton>
           </form>
 
-          <p className="text-center text-[10px] text-[#AEAEAE] mt-6 tracking-wide font-[family-name:var(--font-sans)]">
+          <p className="text-center text-[10px] text-black/50 mt-6 tracking-wide font-[family-name:var(--font-sans)]">
             Akses dibatasi. Hanya untuk administrator Kincha.
           </p>
         </div>

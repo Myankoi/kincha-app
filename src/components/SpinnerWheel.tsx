@@ -41,6 +41,7 @@ export default function SpinnerWheel({
   const controls = useAnimation();
   const [spinning, setSpinning] = useState(false);
   const [landed, setLanded] = useState<number | null>(null);
+  const [pulseRim, setPulseRim] = useState(false);
   const totalRotationRef = useRef(0);
 
   const count = segments.length;
@@ -69,16 +70,30 @@ export default function SpinnerWheel({
     if (spinning || disabled || count === 0) return;
     setSpinning(true);
     setLanded(null);
+    setPulseRim(false);
 
     const extraSpins = MIN_SPINS + Math.floor(Math.random() * MAX_EXTRA_SPINS);
     const landingOffset = Math.random() * 360;
     const target = totalRotationRef.current + extraSpins * 360 + landingOffset;
 
+    // 1. Spin fast and decelerate to just before the target (10 degrees short)
+    const prepTarget = target - 10;
+    await controls.start({
+      rotate: prepTarget,
+      transition: {
+        duration: 3.8,
+        ease: [0.05, 0.8, 0.3, 1.0],
+      },
+    });
+
+    // 2. Spring bounce overshoot to the final target
     await controls.start({
       rotate: target,
       transition: {
-        duration: 4 + Math.random() * 1.5,
-        ease: [0.05, 0.8, 0.3, 1.0],
+        type: "spring",
+        stiffness: 150,
+        damping: 12,
+        mass: 0.8,
       },
     });
 
@@ -90,6 +105,8 @@ export default function SpinnerWheel({
 
     setLanded(selected.id);
     setSpinning(false);
+    setPulseRim(true);
+    setTimeout(() => setPulseRim(false), 1000);
     onSpinEnd(selected.id);
   }, [spinning, disabled, count, controls, segments, onSpinEnd, segmentAngle]);
 
@@ -127,7 +144,10 @@ export default function SpinnerWheel({
 
         {/* Outer rim */}
         <div
-          className="rounded-full p-[5px] bg-black"
+          className={cn(
+            "rounded-full p-[5px] bg-black transition-all duration-300",
+            pulseRim ? "ring-4 ring-[#a3e635] scale-[1.02]" : ""
+          )}
           style={{ boxShadow: "5px 5px 0 0 #000, 0 0 0 4px #000" }}
         >
           {/* Spinning disc */}
@@ -261,7 +281,7 @@ export default function SpinnerWheel({
           spinning ? "text-[#22d3ee]" : landed ? "text-[#a3e635]" : "text-black/40"
         )}
       >
-        {spinning ? "⚡ Sedang berputar…" : landed ? "🎯 Kincir berhenti!" : "Tekan tombol di bawah"}
+        {spinning ? "Sedang berputar…" : landed ? "Kincir berhenti!" : "Tekan tombol di bawah"}
       </p>
     </div>
   );

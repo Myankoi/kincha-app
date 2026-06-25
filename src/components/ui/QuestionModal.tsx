@@ -45,6 +45,13 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Auto-scroll to top when modal opens or content changes (essential for mobile UX)
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [isOpen, children]);
+
   return (
     <AnimatePresence>
       {isOpen && (

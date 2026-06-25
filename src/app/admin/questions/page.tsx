@@ -3,7 +3,7 @@
 import { BrutalButton } from "@/components/ui/BrutalButton";
 import { supabase, type Question, type QuestionType, type MediaType } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
-import { Loader2, Plus, Pencil, Trash2, X, RefreshCw, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, X, RefreshCw, ChevronLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ClickSpark from "@/components/ui/ClickSpark";
@@ -163,15 +163,25 @@ function QuestionFormModal({
       <div className="relative z-50 w-full sm:max-w-lg bg-white border-t-4 sm:border-4 border-black shadow-[0_-6px_0_0_#000] sm:shadow-[8px_8px_0_0_#000] max-h-[92dvh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b-4 border-black bg-[#22d3ee] shrink-0">
-          <h2 className="text-base font-black text-black font-[family-name:var(--font-head)]">
-            {isEdit ? "✏️ Edit Soal" : "➕ Tambah Soal Baru"}
+          <h2 className="text-base font-black text-black font-[family-name:var(--font-head)] flex items-center gap-2">
+            {isEdit ? (
+              <>
+                <Pencil size={16} strokeWidth={3} />
+                <span>Edit Soal</span>
+              </>
+            ) : (
+              <>
+                <Plus size={16} strokeWidth={3} />
+                <span>Tambah Soal Baru</span>
+              </>
+            )}
           </h2>
           <button
             onClick={onClose}
-            className="border-2 border-black p-1.5 bg-white hover:bg-[#F5F5F0] transition-colors"
+            className="border-2 border-black p-1.5 bg-white hover:bg-[#F5F5F0] text-black transition-colors"
             aria-label="Tutup"
           >
-            <X size={16} strokeWidth={2.5} />
+            <X size={16} strokeWidth={2.5} className="text-black" />
           </button>
         </div>
 
@@ -220,9 +230,9 @@ function QuestionFormModal({
                 <button
                   type="button"
                   onClick={addOption}
-                  className="flex items-center gap-1 text-xs font-semibold border-2 border-black px-2 py-1 bg-[#a3e635] hover:bg-[#84cc16] shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                  className="flex items-center gap-1 text-xs font-semibold border-2 border-black px-2 py-1 bg-[#a3e635] hover:bg-[#84cc16] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  <Plus size={12} /> Tambah
+                  <Plus size={12} className="text-black" /> Tambah
                 </button>
               </div>
               {form.options.map((opt, i) => (
@@ -238,9 +248,9 @@ function QuestionFormModal({
                     <button
                       type="button"
                       onClick={() => removeOption(i)}
-                      className="border-2 border-black p-1.5 bg-[#FEF2F2] hover:bg-[#FECACA] transition-colors"
+                      className="border-2 border-black p-1.5 bg-[#ff4b5c] hover:bg-[#ff2c40] text-black transition-colors"
                     >
-                      <X size={12} strokeWidth={2.5} />
+                      <X size={12} strokeWidth={2.5} className="text-black" />
                     </button>
                   )}
                 </div>
@@ -299,7 +309,7 @@ function QuestionFormModal({
               <button
                 type="button"
                 onClick={() => setShowMediaBrowser(true)}
-                className="h-[38px] px-3 border-2 border-black bg-[#FFDB33] font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0_0_#000] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none transition-all cursor-pointer"
+                className="h-[38px] px-3 border-2 border-black bg-[#FFDB33] font-bold text-xs uppercase tracking-wide text-black shadow-[2px_2px_0_0_#000] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none transition-all cursor-pointer"
               >
                 Cari / Upload
               </button>
@@ -375,7 +385,10 @@ function DeleteConfirm({
       <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
       <div className="relative z-50 w-full max-w-sm bg-white border-4 border-black shadow-[8px_8px_0_0_#000]">
         <div className="px-5 py-4 border-b-4 border-black bg-[#f472b6]">
-          <h2 className="text-base font-black text-black font-[family-name:var(--font-head)]">⚠️ Hapus Soal?</h2>
+          <h2 className="text-base font-black text-black font-[family-name:var(--font-head)] flex items-center gap-2">
+            <AlertTriangle size={16} strokeWidth={3} />
+            <span>Hapus Soal?</span>
+          </h2>
         </div>
         <div className="px-5 py-5 space-y-2">
           <p className="text-sm text-[#5A5A5A]">Soal ini akan dihapus permanen:</p>
@@ -442,26 +455,26 @@ export default function QuestionsManagementPage() {
         <SunflowerSVG size={140} className="absolute -bottom-10 -left-10 rotate-[45deg] opacity-10 pointer-events-none z-0" />
         <SunflowerSVG size={100} className="absolute top-24 -right-10 rotate-[70deg] opacity-10 pointer-events-none z-0" />
 
-        <header className="border-b-4 border-black bg-black px-4 py-4 sticky top-0 z-30 shadow-[0_4px_0_0_#000]">
+        <header className="border-b-4 border-black bg-white px-4 py-4 sticky top-0 z-30 shadow-[0_4px_0_0_#000]">
           <div className="max-w-5xl mx-auto flex items-center gap-3">
             <Link
               href="/admin/dashboard"
-              className="border-2 border-[#facc15] p-1.5 text-[#facc15] hover:bg-[#facc15] hover:text-black transition-colors shadow-[2px_2px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
+              className="border-2 border-black p-1.5 text-black bg-[#facc15] hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
               aria-label="Kembali ke dashboard"
             >
               <ChevronLeft size={18} strokeWidth={3} />
             </Link>
             <div className="flex-1">
-              <h1 className="text-sm sm:text-base font-black text-white font-[family-name:var(--font-head)] leading-tight tracking-wider">
-                <DecryptedText
-                  text="KELOLA SOAL"
-                  animateOn="view"
-                  speed={50}
-                  maxIterations={15}
-                  className="text-white"
-                />
+              <h1 className="text-xl font-[family-name:var(--font-head)] font-black text-black tracking-[0.05em] leading-none uppercase flex items-center gap-0.5 select-none">
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#FFDB33] rotate-[-3deg]">K</span>
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#22d3ee] rotate-[2deg]">I</span>
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#f472b6] rotate-[-1deg]">N</span>
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#a3e635] rotate-[3deg]">C</span>
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#fb923c] rotate-[-2deg]">H</span>
+                <span className="inline-block hover:scale-110 transition-transform duration-100 [text-shadow:2px_2px_0_#a78bfa] rotate-[1deg]">A</span>
+                <span className="text-xs font-black uppercase text-black ml-2 px-1.5 py-0.5 border border-black bg-[#a3e635] shadow-[1px_1px_0_0_#000] rotate-[-1deg]">KELOLA SOAL</span>
               </h1>
-              <p className="text-[9px] text-white/50 uppercase tracking-widest font-[family-name:var(--font-sans)] leading-none mt-0.5">
+              <p className="text-[8px] text-black/55 uppercase tracking-[0.2em] leading-none mt-1 font-[family-name:var(--font-sans)] font-extrabold">
                 {questions.length} soal tersimpan
               </p>
             </div>
@@ -469,7 +482,7 @@ export default function QuestionsManagementPage() {
               variant="lime"
               size="sm"
               onClick={() => { setEditTarget(null); setShowForm(true); }}
-              className="font-black uppercase tracking-wider font-[family-name:var(--font-head)] border-2"
+              className="font-black uppercase tracking-wider font-[family-name:var(--font-head)] border-2 shadow-[2px_2px_0_0_#000]"
             >
               <Plus size={14} strokeWidth={2.5} /> Tambah Soal
             </BrutalButton>
@@ -564,17 +577,17 @@ export default function QuestionsManagementPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => { setEditTarget(q); setShowForm(true); }}
-                            className="border-2 border-black p-1.5 bg-[#22d3ee] hover:bg-[#06b6d4] shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                            className="border-2 border-black p-1.5 bg-[#22d3ee] hover:bg-[#06b6d4] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
                             aria-label="Edit soal"
                           >
-                            <Pencil size={13} strokeWidth={2.5} />
+                            <Pencil size={13} strokeWidth={2.5} className="text-black" />
                           </button>
                           <button
                             onClick={() => setDeleteTarget(q)}
-                            className="border-2 border-black p-1.5 bg-[#FEF2F2] hover:bg-[#FECACA] shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                            className="border-2 border-black p-1.5 bg-[#ff4b5c] hover:bg-[#ff2c40] text-black shadow-[2px_2px_0_0_#000] transition-all active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
                             aria-label="Hapus soal"
                           >
-                            <Trash2 size={13} strokeWidth={2.5} />
+                            <Trash2 size={13} strokeWidth={2.5} className="text-black" />
                           </button>
                         </div>
                       </td>

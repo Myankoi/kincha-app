@@ -27,18 +27,18 @@ function getOrCreateSessionId(): string {
 
 function WheelSkeleton() {
   return (
-    <div className="w-full space-y-6 animate-pulse">
+    <div className="w-full space-y-6">
       {/* Marquee skeleton */}
-      <div className="h-10 border-4 border-black bg-[#EBEBEB]" />
+      <div className="h-10 border-4 border-black bg-[#EBEBEB] animate-shimmer" />
       {/* Stage skeleton */}
-      <div className="w-full border-4 border-black bg-[#EBEBEB] shadow-[6px_6px_0_0_#000]">
-        <div className="h-10 border-b-4 border-black bg-[#E0E0E0]" />
+      <div className="w-full border-4 border-black bg-white shadow-[6px_6px_0_0_#000]">
+        <div className="h-10 border-b-4 border-black bg-[#E0E0E0] animate-shimmer" />
         <div className="flex items-center justify-center py-16">
-          <div className="w-56 h-56 border-4 border-black bg-[#D5D5D5] rounded-full" />
+          <div className="w-56 h-56 border-4 border-black bg-[#D5D5D5] rounded-full animate-shimmer" />
         </div>
       </div>
       {/* Button skeleton */}
-      <div className="h-14 border-4 border-black bg-[#EBEBEB]" />
+      <div className="h-14 border-4 border-black bg-[#EBEBEB] animate-shimmer" />
     </div>
   );
 }
@@ -53,6 +53,7 @@ export default function HomePage() {
   const [answeredIds, setAnsweredIds] = useState<number[]>([]);
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
+  const [shouldFlashProgress, setShouldFlashProgress] = useState(false);
   const wheelRef = useRef<SpinnerWheelHandle>(null);
 
   useEffect(() => {
@@ -84,6 +85,15 @@ export default function HomePage() {
       });
   }, [sessionId]);
 
+  // Flash progress counter when progress changes
+  useEffect(() => {
+    if (answeredIds.length > 0) {
+      setShouldFlashProgress(true);
+      const timer = setTimeout(() => setShouldFlashProgress(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [answeredIds.length]);
+
   const handleSpinEnd = useCallback(
     (selectedId: number) => {
       const q = questions.find((q) => q.id === selectedId) ?? null;
@@ -105,17 +115,61 @@ export default function HomePage() {
     setActiveQuestion(null);
   };
 
+  const handleResetSession = () => {
+    const newId = generateUUID();
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SESSION_KEY, newId);
+    }
+    setSessionId(newId);
+    setAnsweredIds([]);
+    setPhase("idle");
+    setActiveQuestion(null);
+  };
+
   const wheelSegments = questions
-    .filter((q) => q.id != null && (q.question_text ?? "").trim().length > 0)
-    .map((q, idx) => ({
+    .map((q, idx) => ({ q, idx }))
+    .filter(({ q }) => q.id != null && (q.question_text ?? "").trim().length > 0 && !answeredIds.includes(q.id))
+    .map(({ q, idx }) => ({
       id: q.id,
       label: `Tebak Rasa #${idx + 1}`,
     }));
+
+  const isCompleted = questions.length > 0 && wheelSegments.length === 0;
 
   return (
     <ClickSpark sparkColor="#FFDB33" sparkSize={10} sparkRadius={22} sparkCount={10}>
       <div className="flex flex-col min-h-[100dvh] bg-[#F5F5F0] bg-[linear-gradient(to_right,#e0e0e0_1px,transparent_1px),linear-gradient(to_bottom,#e0e0e0_1px,transparent_1px)] bg-[size:32px_32px] relative overflow-hidden">
         
+        {/* Confetti Celebration overlay */}
+        {isCompleted && (
+          <div className="confetti-container">
+            {Array.from({ length: 50 }).map((_, i) => {
+              const left = Math.random() * 100;
+              const delay = Math.random() * 2.5;
+              const duration = 2 + Math.random() * 2;
+              const colors = ["#FFDB33", "#22d3ee", "#f472b6", "#a3e635", "#fb923c", "#a78bfa"];
+              const color = colors[Math.floor(Math.random() * colors.length)];
+              const size = 6 + Math.random() * 8;
+              const rotation = Math.random() * 360;
+              return (
+                <div
+                  key={i}
+                  className="confetti-piece"
+                  style={{
+                    left: `${left}%`,
+                    animationDelay: `${delay}s`,
+                    animationDuration: `${duration}s`,
+                    backgroundColor: color,
+                    width: `${size}px`,
+                    height: `${size * 1.5}px`,
+                    transform: `rotate(${rotation}deg)`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
         {/* Floating background decorative sunflowers */}
         <SunflowerSVG size={180} className="absolute -bottom-16 -left-16 rotate-[25deg] opacity-15 pointer-events-none z-0" />
         <SunflowerSVG size={140} className="absolute -top-10 -right-10 rotate-[75deg] opacity-10 pointer-events-none z-0" />
@@ -190,7 +244,10 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={() => setShowProgressModal(true)}
-                    className="border border-[#a3e635] bg-[#a3e635] text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-wider hover:bg-white transition-colors"
+                    className={cn(
+                      "border border-[#a3e635] bg-[#a3e635] text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-wider hover:bg-white transition-all",
+                      shouldFlashProgress && "animate-flash-scale"
+                    )}
                   >
                     Tebak Rasa: {answeredIds.length}/{questions.length}
                   </button>
@@ -198,7 +255,29 @@ export default function HomePage() {
 
                 {/* Spinner Wheel Area */}
                 <div className="w-full flex-1 flex flex-col items-center justify-center py-2 relative">
-                  {wheelSegments.length > 0 ? (
+                  {isCompleted ? (
+                    <div className="flex flex-col items-center gap-4 py-8 px-4 text-center">
+                      <div className="w-14 h-14 border-4 border-black bg-[#a3e635] flex items-center justify-center shadow-[4px_4px_0_0_#000] rotate-[-3deg]">
+                        <CheckCircle2 size={28} strokeWidth={3} className="text-black animate-pulse" />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-black text-black font-[family-name:var(--font-head)] uppercase tracking-wider">
+                          Hebat! Selesai 🎉
+                        </p>
+                        <p className="text-[11px] leading-relaxed text-[#5A5A5A] font-[family-name:var(--font-sans)] max-w-[240px]">
+                          Kamu telah menyelesaikan semua <strong>Tebak Rasa</strong>. Kamu hebat dalam memahami regulasi emosi!
+                        </p>
+                      </div>
+                      <BrutalButton
+                        variant="brand"
+                        size="sm"
+                        onClick={handleResetSession}
+                        className="mt-2 border-2 text-[10px] uppercase font-black tracking-wider py-1.5 shadow-[2px_2px_0_0_#000]"
+                      >
+                        Main Lagi
+                      </BrutalButton>
+                    </div>
+                  ) : wheelSegments.length > 0 ? (
                     <SpinnerWheel
                       ref={wheelRef}
                       segments={wheelSegments}
@@ -227,14 +306,18 @@ export default function HomePage() {
                   <p
                     className={cn(
                       "inline-block border-2 border-black px-3 py-1 text-[10px] font-black uppercase tracking-wider font-[family-name:var(--font-head)] shadow-[2px_2px_0_0_#000] rotate-[-1deg]",
-                      phase === "spinning" 
+                      isCompleted
+                        ? "bg-[#a3e635] text-black"
+                        : phase === "spinning" 
                         ? "bg-[#22d3ee] text-black" 
                         : phase === "answered" 
                         ? "bg-[#a3e635] text-black" 
                         : "bg-[#FFDB33] text-black"
                     )}
                   >
-                    {phase === "spinning" 
+                    {isCompleted
+                      ? "Semua Selesai!"
+                      : phase === "spinning" 
                       ? "Kincir berputar..." 
                       : phase === "answered" 
                       ? "Tebak Rasa selesai" 
@@ -244,27 +327,40 @@ export default function HomePage() {
 
                 {/* Spin Controls */}
                 <div className="w-full mt-5 pt-4 border-t-2 border-dashed border-black">
-                  {(phase === "idle" || phase === "answered") && (
-                    <BrutalButton
-                      variant="brand"
-                      size="lg"
-                      fullWidth
-                      onClick={handleSpin}
-                      disabled={wheelSegments.length === 0}
-                      className="font-black tracking-wider font-[family-name:var(--font-head)] text-xs uppercase shadow-[4px_4px_0_0_#000] border-2"
-                    >
-                      <Target size={14} strokeWidth={3} />
-                      Putar Kincir
-                    </BrutalButton>
-                  )}
-
-                  {phase === "spinning" && (
-                    <div className="w-full border-2 border-black bg-black px-4 py-3 shadow-[4px_4px_0_0_#FFDB33] flex items-center justify-center gap-2 select-none">
-                      <Loader2 className="animate-spin text-[#FFDB33] shrink-0" size={14} strokeWidth={3} />
-                      <span className="text-xs font-black text-white uppercase tracking-wider font-[family-name:var(--font-head)]">
-                        Mencari tebak rasa...
-                      </span>
+                  {isCompleted ? (
+                    <div className="text-center py-1">
+                      <p className="text-[10px] text-[#AEAEAE] font-[family-name:var(--font-sans)] font-semibold">
+                        Semua Tebak Rasa telah diselesaikan.
+                      </p>
                     </div>
+                  ) : (
+                    <>
+                      {(phase === "idle" || phase === "answered") && (
+                        <BrutalButton
+                          variant="brand"
+                          size="lg"
+                          fullWidth
+                          onClick={handleSpin}
+                          disabled={wheelSegments.length === 0}
+                          className={cn(
+                            "font-black tracking-wider font-[family-name:var(--font-head)] text-xs uppercase shadow-[4px_4px_0_0_#000] border-2",
+                            phase === "idle" && "animate-pulse-glow"
+                          )}
+                        >
+                          <Target size={14} strokeWidth={3} />
+                          Putar Kincir
+                        </BrutalButton>
+                      )}
+
+                      {phase === "spinning" && (
+                        <div className="w-full border-2 border-black bg-black px-4 py-3 shadow-[4px_4px_0_0_#FFDB33] flex items-center justify-center gap-2 select-none">
+                          <Loader2 className="animate-spin text-[#FFDB33] shrink-0" size={14} strokeWidth={3} />
+                          <span className="text-xs font-black text-white uppercase tracking-wider font-[family-name:var(--font-head)]">
+                            Mencari tebak rasa...
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

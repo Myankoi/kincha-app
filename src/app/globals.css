@@ -199,3 +199,96 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
+
+/* --- Kincha App Custom UX Animations --- */
+
+/* 1. Shimmer Animation for Skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--neutral-secondary-soft) 25%,
+    var(--neutral-tertiary) 37%,
+    var(--neutral-secondary-soft) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* 2. Pulse Glow for Spin Button */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 4px 4px 0 0 var(--border-default);
+    transform: translate(0, 0);
+  }
+  50% {
+    box-shadow: 4px 4px 0 0 var(--border-default), 0 0 16px 4px rgba(255, 219, 51, 0.4);
+    transform: translate(0, -1px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* 3. Progress Counter Flash Scale */
+@keyframes flash-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+    background-color: var(--brand);
+    border-color: var(--border-default);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-flash-scale {
+  animation: flash-scale 0.5s ease-out;
+}
+
+/* 4. Confetti Fall Animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 20px;
+  border-radius: 2px;
+  animation: confetti-fall 3s linear forwards;
+}
