@@ -1,7 +1,7 @@
 "use client";
 
 import { BrutalButton } from "@/components/ui/BrutalButton";
-import { supabase, type Question, type QuestionType, type MediaType } from "@/lib/supabase";
+import { supabase, type Question, type QuestionType, type MediaType, getPublicMediaUrl } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { Loader2, Plus, Pencil, Trash2, X, RefreshCw, ChevronLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
@@ -329,6 +329,33 @@ function QuestionFormModal({
                 <option value="VIDEO">Video</option>
               </select>
             </div>
+
+            {/* Media Preview */}
+            {form.media_url && form.media_type !== "NONE" && (
+              <div className="border-2 border-black p-2 bg-[#F5F5F0] shadow-[2px_2px_0_0_#000] space-y-1.5">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#5A5A5A]">
+                  Pratinjau Media
+                </p>
+                {form.media_type === "IMAGE" ? (
+                  <div className="relative w-full h-32 border border-black bg-white overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getPublicMediaUrl(form.media_url) || ""}
+                      alt="Pratinjau Media"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full border border-black bg-black overflow-hidden">
+                    <video
+                      src={getPublicMediaUrl(form.media_url) || ""}
+                      controls
+                      className="w-full h-24 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

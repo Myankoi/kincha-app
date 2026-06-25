@@ -147,19 +147,19 @@ function MultipleChoiceOptions({
   onSelect,
 }: {
   options: string[];
-  selected: string | null;
-  onSelect: (opt: string) => void;
+  selected: number | null;
+  onSelect: (idx: number) => void;
 }) {
   return (
     <div className="flex flex-col gap-2.5" role="group" aria-label="Pilihan jawaban">
       {options.map((opt, i) => {
-        const isSelected = selected === opt;
+        const isSelected = selected === i;
         return (
           <button
-            key={opt}
+            key={i}
             id={`mc-opt-${i}`}
             type="button"
-            onClick={() => onSelect(opt)}
+            onClick={() => onSelect(i)}
             aria-pressed={isSelected}
             className={cn(
               "w-full text-left flex items-start gap-3 px-4 py-3.5",
@@ -242,7 +242,7 @@ export default function QuestionCard({
   onDone,
   onReset,
 }: QuestionCardProps) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [essayText, setEssayText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -283,14 +283,14 @@ export default function QuestionCard({
   const canSubmit =
     !submitting &&
     !submitted &&
-    (isMultipleChoice ? !!selected : essayText.trim().length > 0);
+    (isMultipleChoice ? selectedIndex !== null : essayText.trim().length > 0);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    const answerText = isMultipleChoice ? selected! : essayText.trim();
+    const answerText = isMultipleChoice ? (question.options?.[selectedIndex!] ?? "") : essayText.trim();
     setSubmitting(true);
 
-    const correct = isMultipleChoice ? answerText === correctAnswerText : null;
+    const correct = isMultipleChoice ? selectedIndex === question.correct_option : null;
     setIsCorrect(correct);
 
     const payload: Omit<Answer, "id" | "submitted_at"> = {
@@ -358,8 +358,8 @@ export default function QuestionCard({
             {isMultipleChoice && question.options ? (
               <MultipleChoiceOptions
                 options={question.options}
-                selected={selected}
-                onSelect={setSelected}
+                selected={selectedIndex}
+                onSelect={setSelectedIndex}
               />
             ) : (
               <EssayInput value={essayText} onChange={setEssayText} />
