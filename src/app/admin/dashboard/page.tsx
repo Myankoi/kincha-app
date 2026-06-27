@@ -21,6 +21,8 @@ import {
   Pencil,
   AlertTriangle,
   Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -98,6 +100,17 @@ function CorrectnessBadge({ isCorrect }: { isCorrect: boolean | null }) {
 // ── Data Table ───────────────────────────────────────────────────────────────
 
 function AnswersTable({ rows }: { rows: AnswerRow[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalItems = rows.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Reset to page 1 when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows]);
+
   if (rows.length === 0) {
     return (
       <div className="border-4 border-black bg-[#F5F5F0] p-12 text-center shadow-[6px_6px_0_0_#000]">
@@ -108,11 +121,29 @@ function AnswersTable({ rows }: { rows: AnswerRow[] }) {
     );
   }
 
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const currentRows = rows.slice(startIndex, endIndex);
+
+  // Visible page numbers window calculation
+  const pageNumbers = [];
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <div className="space-y-4">
       {/* Mobile Card-Based Grid (Visible only on mobile) */}
       <div className="block sm:hidden space-y-4">
-        {rows.map((row) => {
+        {currentRows.map((row) => {
           const hasProfanity = containsProfanity(row.answer_text);
           const displayText = hasProfanity
             ? sanitizeText(row.answer_text)
@@ -194,7 +225,7 @@ function AnswersTable({ rows }: { rows: AnswerRow[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, idx) => {
+            {currentRows.map((row, idx) => {
               const hasProfanity = containsProfanity(row.answer_text);
               const displayText = hasProfanity
                 ? sanitizeText(row.answer_text)
@@ -205,7 +236,7 @@ function AnswersTable({ rows }: { rows: AnswerRow[] }) {
                   key={row.id}
                   className={cn(
                     "bg-white hover:bg-[#F5F5F0]/50 transition-colors duration-100",
-                    idx !== rows.length - 1 && "border-b-2 border-black"
+                    idx !== currentRows.length - 1 && "border-b-2 border-black"
                   )}
                 >
                   <td className="px-4 py-3 font-mono text-[10px] text-[#5A5A5A] whitespace-nowrap border-r border-black/10">
@@ -248,6 +279,92 @@ function AnswersTable({ rows }: { rows: AnswerRow[] }) {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t-2 border-black border-dashed">
+          <p className="text-xs font-black text-[#5A5A5A] uppercase tracking-wide">
+            Menampilkan <span className="text-black">{startIndex + 1}</span> -{" "}
+            <span className="text-black">{endIndex}</span> dari{" "}
+            <span className="text-black">{totalItems}</span> entri
+          </p>
+
+          <div className="flex items-center gap-1.5 font-[family-name:var(--font-head)] select-none">
+            {/* Prev Button */}
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className={cn(
+                "border-2 border-black bg-white text-black p-1.5 shadow-[2px_2px_0_0_#000] transition-all",
+                currentPage === 1
+                  ? "opacity-40 cursor-not-allowed shadow-none translate-x-px translate-y-px"
+                  : "hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none cursor-pointer"
+              )}
+              aria-label="Halaman sebelumnya"
+            >
+              <ChevronLeft size={16} strokeWidth={2.5} className="text-black" />
+            </button>
+
+            {/* Page Numbers */}
+            {startPage > 1 && (
+              <>
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  className="border-2 border-black w-8 h-8 flex items-center justify-center text-xs font-black shadow-[2px_2px_0_0_#000] transition-all bg-white text-black hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
+                >
+                  1
+                </button>
+                {startPage > 2 && <span className="text-xs font-black text-black px-1">...</span>}
+              </>
+            )}
+
+            {pageNumbers.map((pageNum) => {
+              const isActive = pageNum === currentPage;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={cn(
+                    "border-2 border-black w-8 h-8 flex items-center justify-center text-xs font-black shadow-[2px_2px_0_0_#000] transition-all",
+                    isActive
+                      ? "bg-[#FFDB33] text-black shadow-none translate-x-px translate-y-px"
+                      : "bg-white text-black hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none cursor-pointer"
+                  )}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {endPage < totalPages && (
+              <>
+                {endPage < totalPages - 1 && <span className="text-xs font-black text-black px-1">...</span>}
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  className="border-2 border-black w-8 h-8 flex items-center justify-center text-xs font-black shadow-[2px_2px_0_0_#000] transition-all bg-white text-black hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+
+            {/* Next Button */}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className={cn(
+                "border-2 border-black bg-white text-black p-1.5 shadow-[2px_2px_0_0_#000] transition-all",
+                currentPage === totalPages
+                  ? "opacity-40 cursor-not-allowed shadow-none translate-x-px translate-y-px"
+                  : "hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_#000] active:translate-x-px active:translate-y-px active:shadow-none cursor-pointer"
+              )}
+              aria-label="Halaman berikutnya"
+            >
+              <ChevronRight size={16} strokeWidth={2.5} className="text-black" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -438,6 +555,7 @@ function ResponseAnalyticsView({
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [answers, setAnswers] = useState<AnswerRow[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeTab, setActiveTab] = useState<"TABLE" | "CHARTS">("TABLE");
@@ -509,10 +627,22 @@ export default function AdminDashboardPage() {
       if (!data.session) {
         router.push("/admin/login");
       } else {
+        setCheckingAuth(false);
         fetchData();
       }
     });
   }, [fetchData, router]);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F5F5F0]">
+        <div className="border-4 border-black bg-white p-8 shadow-[6px_6px_0_0_#000] flex flex-col items-center gap-3">
+          <RefreshCw className="animate-spin text-black" size={28} strokeWidth={3} />
+          <p className="text-sm font-black uppercase tracking-wider font-[family-name:var(--font-head)]">Memeriksa Otorisasi…</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleExportCSV = () => {
     const headers = [

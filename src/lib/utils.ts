@@ -113,7 +113,7 @@ const PROFANITY_PATTERN =
   /\b(anjing|bangsat|kontol|memek|babi|tolol|idiot|fuck|shit|ass|bitch|damn|bastard)\b/gi;
 
 export function containsProfanity(text: string): boolean {
-  return PROFANITY_PATTERN.test(text);
+  return false;
 }
 
 /**

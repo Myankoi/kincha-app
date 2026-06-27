@@ -69,10 +69,14 @@ function MediaBlock({ question }: { question: Question }) {
 function AnswerResult({
   isCorrect,
   explanation,
+  correctAnswer,
+  correctOptionIndex,
   onDone,
 }: {
   isCorrect: boolean | null;
   explanation: string | null | undefined;
+  correctAnswer?: string | null;
+  correctOptionIndex?: number | null;
   onDone: () => void;
 }) {
   const resultMap = {
@@ -116,8 +120,32 @@ function AnswerResult({
         </p>
       </div>
 
-      {/* Kezia's message */}
-      {explanation && (
+      {/* Correct answer display when the answer is incorrect */}
+      {isCorrect === false && correctAnswer && (
+        <div className="border-2 border-black bg-[#FFF9E0] px-4 py-3 shadow-[3px_3px_0_0_#000] flex items-start gap-2.5">
+          <CheckCircle2 size={16} strokeWidth={3} className="text-black shrink-0 mt-0.5" />
+          <div className="text-xs">
+            <span className="font-black uppercase tracking-wider text-black block font-[family-name:var(--font-head)] mb-0.5">
+              Jawaban yang Benar:
+            </span>
+            <span className="font-semibold text-black leading-snug">
+              {correctOptionIndex !== null && correctOptionIndex !== undefined ? (
+                <span className="flex items-center gap-1.5 mt-1">
+                  <span className="inline-flex items-center justify-center border-2 border-black bg-black text-[#FFDB33] w-5 h-5 text-[9px] font-black font-[family-name:var(--font-head)] shadow-[1px_1px_0_0_#000]">
+                    {String.fromCharCode(65 + correctOptionIndex)}
+                  </span>
+                  <span>{correctAnswer}</span>
+                </span>
+              ) : (
+                correctAnswer
+              )}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Kezia's message (only for essay questions) */}
+      {explanation && isCorrect === null && (
         <div className="border-l-4 border-black bg-[#F5F5F0] px-4 py-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-black mb-2 font-[family-name:var(--font-head)]">
             Kata Kezia
@@ -351,6 +379,8 @@ export default function QuestionCard({
           <AnswerResult
             isCorrect={isCorrect}
             explanation={question.explanation}
+            correctAnswer={correctAnswerText}
+            correctOptionIndex={question.correct_option}
             onDone={onDone}
           />
         ) : (

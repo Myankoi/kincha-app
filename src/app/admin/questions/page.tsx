@@ -5,6 +5,7 @@ import { supabase, type Question, type QuestionType, type MediaType, getPublicMe
 import { cn } from "@/lib/utils";
 import { Loader2, Plus, Pencil, Trash2, X, RefreshCw, ChevronLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClickSpark from "@/components/ui/ClickSpark";
 import DecryptedText from "@/components/ui/DecryptedText";
@@ -435,6 +436,8 @@ function DeleteConfirm({
 }
 
 export default function QuestionsManagementPage() {
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -452,7 +455,16 @@ export default function QuestionsManagementPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchQuestions(); }, []);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        router.push("/admin/login");
+      } else {
+        setCheckingAuth(false);
+        fetchQuestions();
+      }
+    });
+  }, [router]);
 
   const handleSaved = () => {
     setShowForm(false);
@@ -473,6 +485,17 @@ export default function QuestionsManagementPage() {
     MULTIPLE_CHOICE: "bg-[#CFFAFE] border-[#0891B2] text-[#0891B2]",
     ESSAY: "bg-[#FEF3C7] border-[#D97706] text-[#92400E]",
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F5F5F0]">
+        <div className="border-4 border-black bg-white p-8 shadow-[6px_6px_0_0_#000] flex flex-col items-center gap-3">
+          <RefreshCw className="animate-spin text-black" size={28} strokeWidth={3} />
+          <p className="text-sm font-black uppercase tracking-wider font-[family-name:var(--font-head)]">Memeriksa Otorisasi…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ClickSpark sparkColor="#FFDB33" sparkSize={10} sparkRadius={22} sparkCount={8}>
